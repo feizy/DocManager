@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
+import os
+import getpass
 import numpy as np
 import gradio as gr
-import langchain
+from langchain.document_loaders import PyMuPDFLoader
 def process_uploaded_files(files):
-    file_contents = []
+    out=[]
     for file in files:
-        if file[]
+        if file.split('.')[-1]=='pdf':
+            loader = PyMuPDFLoader
+        elif file.split('.')[-1]=='txt':
+            with open(file, 'r', encoding='utf-8') as f:
+                loader = f.read()
+        else:
+            continue
+    return loader
 
 def summary():
     return 0
@@ -16,7 +25,7 @@ def qa():
 with gr.Blocks() as demo:
     gr.Markdown("""<h1><center>AI doc manager</center></h1>""")
 
-    file_input = gr.File(file_types=['.txt','.pdf'],file_count="multiple")
+    file_input = gr.File(file_types=['text','.pdf'],file_count="multiple", label="Upload docs here(only support .txt and .pdf)")
     submit_button = gr.Button("upload!")
 
 
@@ -28,10 +37,11 @@ with gr.Blocks() as demo:
     qa_output = gr.Textbox(placeholder='Anwser',label="Answer")
     qa_button = gr.Button("Submit")
 
-
+    submit_button.click(process_uploaded_files,inputs=file_input, outputs=summary_output)
     # summary_button.click(summary, inputs=text_input, outputs=text_output)
     # qa_button.click(qa, inputs=image_input, outputs=image_output)
 
 
 if __name__ == "__main__":
     demo.launch()
+

@@ -2,3 +2,4 @@ gradio
 openai
 pypdf
 langchain
+pymupdf
