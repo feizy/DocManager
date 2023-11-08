@@ -20,7 +20,7 @@ from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 
 
 def process_uploaded_files(files):
-    global texts,docsearch
+    global texts, docsearch
     contents = ""
     for file in files:
         if file.split('.')[-1] == 'pdf':
@@ -41,21 +41,6 @@ def process_uploaded_files(files):
     return 0
 
 def summary(language):
-    # contents=""
-    # for file in files:
-    #     if file.split('.')[-1]=='pdf':
-    #         loader = PyMuPDFLoader(file)
-    #         data=loader.load()
-    #         for f in data:
-    #             contents+= f.page_content
-    #     elif file.split('.')[-1]=='txt':
-    #         with open(file, 'r', encoding='utf-8') as f:
-    #             loader = f.read()
-    #         contents += loader
-    #     else:
-    #         continue
-    # text_splitter = CharacterTextSplitter()
-    # texts = text_splitter.split_text(contents)
     docs = [Document(page_content=t) for t in texts[:3]]
     prompt_template = """Write a concise summary of the following:
 
