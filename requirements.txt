@@ -1,5 +1,8 @@
 gradio
-openai
+openai==0.28.1
 pypdf
 langchain
 pymupdf
+python-dotenv
+tiktoken
+chromadb==0.4.15
