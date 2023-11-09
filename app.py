@@ -20,7 +20,7 @@ from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 
 
 def process_uploaded_files(files):
-    global texts, docsearch
+    global texts
     contents = ""
     for file in files:
         if file.split('.')[-1] == 'pdf':
@@ -36,8 +36,8 @@ def process_uploaded_files(files):
             continue
     text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(contents)
-    embeddings = OpenAIEmbeddings()
-    docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
+    # embeddings = OpenAIEmbeddings()
+    # docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
     return 0
 
 def summary(language):
@@ -58,28 +58,45 @@ def qa(query,language):
     # docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
     docs = docsearch.similarity_search(query)
     chain = load_qa_with_sources_chain(llm, chain_type="stuff")
-    query = f"Answer the question in {language}"
+    query += f"Answer the question in {language}"
     with get_openai_callback() as cost:
         output = chain.run({"input_documents": docs, "question": query})
     return output, cost
 
+def exctract_doc():
+    global docsearch
+    embeddings = OpenAIEmbeddings()
+    with get_openai_callback() as cost:
+        docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
+    return cost
+
+
 with gr.Blocks() as demo:
     gr.Markdown("""<h1><center>AI doc manager</center></h1>""")
-    file_input = gr.Files(file_types=['text','.pdf'], label="Upload your document(only support .txt and .pdf)")
-    submit_button = gr.Button("upload!")
-    language_input = gr.Textbox(placeholder="Input your desired output language", label="Language")
-    summary_output = gr.Textbox(placeholder="summary", label="Summary")
-    cost_output = gr.Textbox(placeholder="AI is not free!", label="Cost")
-    summary_button = gr.Button("Get Summary!")
+    with gr.Column():
+        file_input = gr.Files(file_types=['text', '.pdf'], label="Upload your document(only support .txt and .pdf)")
+        submit_button = gr.Button("upload!")
+    with gr.Tab("Summary"):
+        summary_language_input = gr.Radio(choices=["english","chinese","japanese"],
+                                          label="Language", info="Choose output language")
+        summary_output = gr.Textbox(placeholder="summary", label="Summary")
+        summary_button = gr.Button("Get Summary!")
+        summary_cost_output = gr.Textbox(placeholder="AI is not free!", label="Cost")
 
-    #QA部分
-    qa_input = gr.Textbox(placeholder='enter Question here...',label="Question")
-    qa_output = gr.Textbox(placeholder='Anwser',label="Answer")
-    qa_button = gr.Button("Question Submit")
+    with gr.Tab("Q&A"):
+        with gr.Row():
+            qa_language_input = gr.Radio(choices=["english", "chinese", "japanese"], label="Language",
+                                              info="Choose output language")
+            exctract_button = gr.Button("Exctract document!")
+        qa_input = gr.Textbox(placeholder='enter Question here...', label="Question")
+        qa_button = gr.Button("Question Submit")
+        qa_output = gr.Textbox(placeholder='Anwser', label="Answer")
+        qa_cost_output = gr.Textbox(placeholder="AI is not free!", label="Cost")
 
     submit_button.click(process_uploaded_files,inputs=file_input)
-    summary_button.click(summary, inputs=[language_input], outputs=[summary_output, cost_output])
-    qa_button.click(qa, inputs=[qa_input, language_input], outputs=[qa_output, cost_output])
+    summary_button.click(summary, inputs=[summary_language_input], outputs=[summary_output, summary_cost_output])
+    exctract_button.click(exctract_doc, outputs=qa_cost_output)
+    qa_button.click(qa, inputs=[qa_input, qa_language_input], outputs=[qa_output, qa_cost_output])
 
 
 if __name__ == "__main__":
@@ -93,5 +110,5 @@ if __name__ == "__main__":
         deployment_name="xiwe-test-davinci-003",
         model_name="text-davinci-003",
     )
-    demo.launch(debug=True)
+    demo.launch()
 
