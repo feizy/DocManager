@@ -17,11 +17,14 @@ from langchain.callbacks import get_openai_callback
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
-
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 def process_uploaded_files(files):
     global texts
     contents = ""
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=4000,
+                                                   chunk_overlap=300,
+                                                   length_function=len)
     for file in files:
         if file.split('.')[-1] == 'pdf':
             loader = PyMuPDFLoader(file)
@@ -34,7 +37,6 @@ def process_uploaded_files(files):
             contents += loader
         else:
             continue
-    text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(contents)
     # embeddings = OpenAIEmbeddings()
     # docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
@@ -109,6 +111,7 @@ if __name__ == "__main__":
     llm = AzureOpenAI(
         deployment_name="xiwe-test-davinci-003",
         model_name="text-davinci-003",
+        max_tokens=500
     )
     demo.launch()
 
