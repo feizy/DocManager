@@ -22,8 +22,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 def process_uploaded_files(files):
     global texts
     contents = ""
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=4000,
-                                                   chunk_overlap=300,
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,
+                                                   chunk_overlap=50,
                                                    length_function=len)
     for file in files:
         if file.split('.')[-1] == 'pdf':
@@ -67,10 +67,9 @@ def qa(query,language):
 
 def exctract_doc():
     global docsearch
-    embeddings = OpenAIEmbeddings()
-    with get_openai_callback() as cost:
-        docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
-    return cost
+    embeddings = OpenAIEmbeddings(deployment="text-embedding-ada-002")
+    docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
+    return 0
 
 
 with gr.Blocks() as demo:
@@ -97,7 +96,7 @@ with gr.Blocks() as demo:
 
     submit_button.click(process_uploaded_files,inputs=file_input)
     summary_button.click(summary, inputs=[summary_language_input], outputs=[summary_output, summary_cost_output])
-    exctract_button.click(exctract_doc, outputs=qa_cost_output)
+    exctract_button.click(exctract_doc)
     qa_button.click(qa, inputs=[qa_input, qa_language_input], outputs=[qa_output, qa_cost_output])
 
 
@@ -113,5 +112,5 @@ if __name__ == "__main__":
         model_name="text-davinci-003",
         max_tokens=500
     )
-    demo.launch(share=True)
+    demo.launch()
 
