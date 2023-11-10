@@ -1,5 +1,5 @@
 ---
-title: Spaces Template Gradio
+title: DocManager
 emoji: 🤗
 colorFrom: blue
 colorTo: red
