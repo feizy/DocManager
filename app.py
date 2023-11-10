@@ -113,5 +113,5 @@ if __name__ == "__main__":
         model_name="text-davinci-003",
         max_tokens=500
     )
-    demo.launch()
+    demo.launch(share=True)
 
