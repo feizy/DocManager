@@ -1,8 +1,9 @@
 ---
-title: {{DocManager}}
-colorFrom: {purple}
-colorTo: {purple}
-sdk: {gradio}
+title: Spaces Template Gradio
+emoji: 🤗
+colorFrom: blue
+colorTo: red
+sdk: gradio
 app_file: app.py
 pinned: false
 ---
