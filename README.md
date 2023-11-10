@@ -1,5 +1,5 @@
 ---
-title: {}DocManager}}
+title: {{DocManager}}
 colorFrom: {{purple}}
 colorTo: {{purple}}
 sdk: {{gradio}}
