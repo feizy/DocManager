@@ -43,7 +43,7 @@ def process_uploaded_files(files):
     return 0
 
 def summary(language):
-    docs = [Document(page_content=t) for t in texts[:3]]
+    docs = [Document(page_content=t) for t in texts[:5]]
     prompt_template = """Write a concise summary of the following:
 
     {text}
@@ -67,9 +67,10 @@ def qa(query,language):
 
 def exctract_doc():
     global docsearch
-    embeddings = OpenAIEmbeddings(deployment="text-embedding-ada-002")
-    docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
-    return 0
+    with get_openai_callback() as cost:
+        embeddings = OpenAIEmbeddings(deployment="text-embedding-ada-002")
+        docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))])
+    return cost
 
 
 with gr.Blocks() as demo:
@@ -96,7 +97,7 @@ with gr.Blocks() as demo:
 
     submit_button.click(process_uploaded_files,inputs=file_input)
     summary_button.click(summary, inputs=[summary_language_input], outputs=[summary_output, summary_cost_output])
-    exctract_button.click(exctract_doc)
+    exctract_button.click(exctract_doc,outputs=qa_cost_output)
     qa_button.click(qa, inputs=[qa_input, qa_language_input], outputs=[qa_output, qa_cost_output])
 
 
