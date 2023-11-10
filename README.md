@@ -1,9 +1,8 @@
 ---
-title: {DocManager}
-emoji: {}
-colorFrom: {purple}
-colorTo: {purple}
-sdk: {gradio}
+title: {}DocManager}}
+colorFrom: {{purple}}
+colorTo: {{purple}}
+sdk: {{gradio}}
 app_file: app.py
 pinned: false
 ---
